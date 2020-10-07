@@ -7,5 +7,5 @@ const boxenOptions = {
 };
 
 module.exports = {
-  boxenOptions,
+  boxenOptions
 };

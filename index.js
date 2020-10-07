@@ -3,12 +3,14 @@ const fs = require('fs');
 const os = require('os');
 const utils = require('./utils');
 
-const { cls, displayMessageBox, snakeToCamel } = utils;
+const { cls, displayMessageBox, snakeToCamel, generateReducer, genericFileName, directoryPath } = utils;
 
 let actionsFilePath;
 let actions = [];
 let actionConstants = [];
 let actionMethods = [];
+let genericName = '';
+let _directoryPath = '';
 
 cls();
 getActionsFile();
@@ -16,6 +18,10 @@ getActionsFile();
 function getActionsFile() {
   displayMessageBox("Speciify the path to your .actions file");
   actionsFilePath = prompt();
+
+  genericName = genericFileName(actionsFilePath);
+  _directoryPath = directoryPath(actionsFilePath);
+
   displayMessageBox(`Provided Path: ${actionsFilePath}`);
   if (actionsFilePath && typeof actionsFilePath === "string") {
     readFile(actionsFilePath);
@@ -25,11 +31,17 @@ function getActionsFile() {
 function readFile(path) {
   fs.readFile(path, "utf8", function (err, data) {
     if (!err) {
+      //actions file
       actions = data.split(os.EOL);
+      generateReducer(actions, actionsFilePath);
       generateConstants(actions);
       generateMethods(actions);
       writeFile(actionsFilePath, [...actionConstants, ...actionMethods]);
-      displayMessageBox("Actions file Successfully Updated!");
+      displayMessageBox("Actions file Successfully Created!");
+
+      //reducer file
+      writeFile(`${_directoryPath}/${genericName}.reducer.js`, generateReducer(actions, actionsFilePath));
+      displayMessageBox("Reducers file Successfully Created!");
     } else {
       console.log(err);
     }
@@ -54,7 +66,7 @@ function generateMethods(actions) {
 }
 
 function writeFile(path, content) {
-  fs.writeFileSync(path, `// Auto Generated Actions File\n`, { encoding: 'utf8', flag: 'w' });
+  fs.writeFileSync(path, `// Auto Generated File\n`, { encoding: 'utf8', flag: 'w' });
   content && content.length && content.forEach(function (line) {
     fs.appendFileSync(path, `${line}\n`, { encoding: 'utf8', flag: "a" });
   });
