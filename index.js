@@ -1,20 +1,15 @@
 const prompt = require('prompt-sync')();
-const chalk = require('chalk');
-const boxen = require('boxen');
 const fs = require('fs');
 const os = require('os');
+const utils = require('./utils');
+
+const { cls, displayMessageBox, snakeToCamel } = utils;
+
 let actionsFilePath;
 let actions = [];
 let actionConstants = [];
 let actionMethods = [];
 
-const boxenOptions = {
-  padding: 1,
-  margin: 1,
-  borderStyle: "round",
-  borderColor: "green",
-  backgroundColor: "black"
-};
 cls();
 getActionsFile();
 
@@ -58,29 +53,9 @@ function generateMethods(actions) {
   }
 }
 
-function snakeToCamel(snake) {
-  return snake.toLowerCase().replace(/([-_][a-z])/g, group =>
-    group
-      .toUpperCase()
-      .replace('_', '')
-  );
-}
-
 function writeFile(path, content) {
   fs.writeFileSync(path, `// Auto Generated Actions File\n`, { encoding: 'utf8', flag: 'w' });
   content && content.length && content.forEach(function (line) {
     fs.appendFileSync(path, `${line}\n`, { encoding: 'utf8', flag: "a" });
   });
 };
-
-function createMessage(message) {
-  return chalk.white.bold(message);
-};
-
-function displayMessageBox(message) {
-  console.log(boxen(createMessage(message), boxenOptions));
-};
-
-function cls() {
-  console.clear();
-}
